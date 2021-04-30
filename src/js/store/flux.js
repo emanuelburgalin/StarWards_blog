@@ -1,42 +1,42 @@
 const getState = ({ getStore, getActions, setStore }) => {
 	return {
 		store: {
-			demo: [
-				{
-					title: "FIRST",
-					background: "white",
-					initial: "white"
-				},
-				{
-					title: "SECOND",
-					background: "white",
-					initial: "white"
-				}
-			]
+			characters: [],
+			planets: [],
+			favorites: []
 		},
 		actions: {
-			// Use getActions to call a function within a fuction
-			exampleFunction: () => {
-				getActions().changeColor(0, "green");
+			getCharacters: async () => {
+				let result = await fetch("https://swapi.dev/api/people/")
+					.then(res => res.json())
+					//.then(data => console.log(data))
+					.then(data => {
+						setStore({ ...getStore(), characters: data.results });
+					})
+					.catch(err => console.log(err));
 			},
-			loadSomeData: () => {
-				/**
-					fetch().then().then(data => setStore({ "foo": data.bar }))
-				*/
+			getPlanets: async () => {
+				let result = await fetch("https://swapi.dev/api/planets/")
+					.then(res => res.json())
+					//.then(data => console.log(data.results))
+					.then(data => {
+						setStore({ ...setStore, planets: data.results });
+					})
+					.catch(err => console.log(err));
 			},
-			changeColor: (index, color) => {
-				//get the store
-				const store = getStore();
-
-				//we have to loop the entire demo array to look for the respective index
-				//and change its color
-				const demo = store.demo.map((elm, i) => {
-					if (i === index) elm.background = color;
-					return elm;
+			addFavorites: (event, name) => {
+				/*getStore().characters.map(item => {
+					if (item.name === name) {
+						setStore({ ...getStore(), favorites: { name } });
+					}
+                });*/
+				setStore({ ...getStore(), favorites: [...getStore().favorites, { name }] });
+			},
+			deleteFavorites: name => {
+				const updateFav = getStore().favorites.filter(item => {
+					return item.name != name;
 				});
-
-				//reset the global store
-				setStore({ demo: demo });
+				setStore({ favorites: updateFav });
 			}
 		}
 	};
